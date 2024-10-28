@@ -5,7 +5,9 @@ import {Test, console} from "@forge-std/Test.sol";
 import {WhaleNFT} from "../src/WhaleNFT.sol";
 import {HDRToken} from "../src/HDRToken.sol";
 import {DeployWhaleNFT} from "../script/DeployWhaleNFT.s.sol";
-import {WhaleNFTInteractions} from "../script/WhaleNFTInteractions.s.sol";
+import {MintNFT} from "../script/Interactions.s.sol";
+import {DeployToken} from "../script/DeployHDRToken.s.sol";
+import {MintHDR} from "../script/Interactions.s.sol";
 
 contract WhaleNFTTest is Test {
     // The erros from the WhaleNFT contract to test they work
@@ -13,29 +15,36 @@ contract WhaleNFTTest is Test {
 
     WhaleNFT public whaleNFT;
     HDRToken public token;
-    DeployWhaleNFT public deployWhaleNFT;
-    WhaleNFTInteractions public interactions;
+    DeployWhaleNFT public nftDeployer;
+    MintNFT public mintNftDeployer;
+    DeployToken public tokenDeployer;
+    MintHDR public mintHDRDeployer;
 
     address public USER = makeAddr("USER");
+    address public DeafultUSER = 0x1804c8AB1F12E6bbf3894d4083f33e07309d1f38;
     string public constant NFT_NAME = "WhaleNFT";
     string public constant NFT_SYMBOL = "WHT";
     string public constant TOKEN_URI =
         "https://ipfs.io/ipfs/Qmbhzm4DE3pthwrHAcpZD7hNd5UhkctFMvLqTtGGnkLdkT?filename=NFTStats.json";
-    uint256 public constant AMOUNT_FOR_USER = 1e18;
+    uint256 public constant AMOUNT_FOR_USER = 5e18;
 
     function setUp() public {
-        deployWhaleNFT = new DeployWhaleNFT();
-        whaleNFT = deployWhaleNFT.run();
-        token = new HDRToken();
-        interactions = new WhaleNFTInteractions();
+        tokenDeployer = new DeployToken();
+        token = tokenDeployer.run();
+        nftDeployer = new DeployWhaleNFT();
+        whaleNFT = nftDeployer.run(address(token));
+
+        token.approve(USER, AMOUNT_FOR_USER);
+        token.mint(USER, AMOUNT_FOR_USER);
     }
 
     ///////////////
     // Modifiers //
     ///////////////
 
-    modifier pranks() {
+    modifier prankAndDeal() {
         vm.startPrank(USER);
+        token.approve(address(whaleNFT), AMOUNT_FOR_USER);
         _;
         vm.stopPrank();
     }
@@ -62,34 +71,34 @@ contract WhaleNFTTest is Test {
         );
     }
 
-    function test_mint_and_balance() public pranks {
+    function test_mint_and_balance() public prankAndDeal {
         whaleNFT.mintNft();
 
         assertEq(whaleNFT.balanceOf(USER), 1);
+        console.log("NFT owner address: ", whaleNFT.i_owner());
     }
 
-    function test_cant_mint_above_limit() public pranks {
+    function test_cant_mint_above_limit() public prankAndDeal {
         for (uint256 i = 0; i < 100; i++) {
+            // First mint in the setup so minus 1
             whaleNFT.mintNft();
         }
         vm.expectRevert(WhaleNFT__LimitReached.selector);
         whaleNFT.mintNft();
     }
 
-    function test_cant_find_token_uri() public pranks {
+    function test_cant_find_token_uri() public prankAndDeal {
         // It is 2 because the first should be 1!
         vm.expectRevert(); // Not using a custom error because the ERC721 contract from OpenZeppelin automatically uses they're own!
         whaleNFT.tokenURI(2);
     }
 
-    function test_get_counter() public pranks {
+    function test_get_counter() public prankAndDeal {
         whaleNFT.mintNft();
-
-        // Counter starts at 1 so now shoulw be 2
         assertEq(whaleNFT.getTokenCounter(), 2);
     }
 
-    function test_get_token_id_for_owner() public pranks {
+    function test_get_token_id_for_owner() public prankAndDeal {
         whaleNFT.mintNft();
         assertEq(whaleNFT.getTokenIDForOwner(USER), 1);
     }
@@ -98,26 +107,21 @@ contract WhaleNFTTest is Test {
         assertEq(keccak256(abi.encodePacked(TOKEN_URI)), keccak256(abi.encodePacked(whaleNFT.getTokenURI())));
     }
 
+    function test_user_with_not_enough_tokens() public {
+        address poorUser = makeAddr("poorUser");
+        uint256 badAmount = 1e14;
+        token.mint(poorUser, badAmount);
+        vm.startPrank(poorUser);
+        vm.expectRevert();
+        whaleNFT.mintNft();
+        vm.stopPrank();
+    }
+
     ////////////////////////
     // HDRToken.sol Tests //
     ////////////////////////
 
-    function test_minting_of_HDRToken() public {
-        vm.startPrank(address(this));
-        token.approve(USER, AMOUNT_FOR_USER);
-        token.mint(USER, AMOUNT_FOR_USER);
-        vm.stopPrank();
+    function test_minting_of_HDRToken() public view {
         assertEq(token.balanceOf(USER), AMOUNT_FOR_USER);
-    }
-
-    ////////////////////////////
-    // Interactions.sol Tests //
-    ////////////////////////////
-
-    function test_mint_with_interactions_script() public {
-        interactions.mintNFTOnContract(address(whaleNFT));
-
-        assertEq(whaleNFT.getTokenCounter(), 2);
-        assertEq(whaleNFT.getTokenIDForOwner(0x1804c8AB1F12E6bbf3894d4083f33e07309d1f38), 1); // still need to figure out who this is
     }
 }
