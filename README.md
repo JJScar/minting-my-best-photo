@@ -3,9 +3,6 @@
 
 This project is a practice project in order to learn more about working with NFT tokens (aka ERC721 tokens) and custom made ERC20 tokens. 
 
-<img src="https://ipfs.io/ipfs/QmUu68RfYEq6ssS6gtCosXWbSAZMirEEd6RxLYEtM6EFet?filename=P1040846.jpg" alt="the nft image to be minted">
-
-
 ## Installation
 
 To do all with one line run:
