@@ -1,66 +1,66 @@
-## Foundry
 
-**Foundry is a blazing fast, portable and modular toolkit for Ethereum application development written in Rust.**
+# My Best Photo (Minting an NFT with custom ERC20 Token)
 
-Foundry consists of:
+This project is a practice project in order to learn more about working with NFT tokens (aka ERC721 tokens) and custom made ERC20 tokens. 
 
--   **Forge**: Ethereum testing framework (like Truffle, Hardhat and DappTools).
--   **Cast**: Swiss army knife for interacting with EVM smart contracts, sending transactions and getting chain data.
--   **Anvil**: Local Ethereum node, akin to Ganache, Hardhat Network.
--   **Chisel**: Fast, utilitarian, and verbose solidity REPL.
 
-## Documentation
 
-https://book.getfoundry.sh/
 
-## Usage
+## Installation
 
-### Build
+To do all with one line run:
+```bash
+make all
+```
+Or do it all in steps
 
-```shell
-$ forge build
+Install my-project with foundry (forge)
+
+```bash
+  forge install https://github.com/JJScar/minting-my-best-photo.git
 ```
 
-### Test
+Run forge build to make sure all libraries are downloaded and everything works as it should
 
-```shell
-$ forge test
+```bash
+forge build
+```
+## Usage/Examples
+
+Use the MAKEFILE commands to make usage easier.
+
+Run to test the code:
+```bash
+forge test
 ```
 
-### Format
-
-```shell
-$ forge fmt
+Run to see test coverage
+```bash
+forge coverage
 ```
 
-### Gas Snapshots
-
-```shell
-$ forge snapshot
+Run to deploy ERC20 token contract:
+```bash
+make deployToken
 ```
 
-### Anvil
-
-```shell
-$ anvil
+Run to mint ERC20 token:
+```bash
+make mintToken
 ```
 
-### Deploy
-
-```shell
-$ forge script script/Counter.s.sol:CounterScript --rpc-url <your_rpc_url> --private-key <your_private_key>
+Run to deploy NFT contract:
+```bash
+make deployNFT
 ```
 
-### Cast
-
-```shell
-$ cast <subcommand>
+Run to mint an NFT
+```bash
+make mintNFT
 ```
 
-### Help
 
-```shell
-$ forge --help
-$ anvil --help
-$ cast --help
-```
+## 🔗 Links
+[![linkedin](https://img.shields.io/badge/linkedin-0A66C2?style=for-the-badge&logo=linkedin&logoColor=white)](https://www.linkedin.com/in/jordan-solomon-b735b8165/)
+[![twitter](https://img.shields.io/badge/twitter-1DA1F2?style=for-the-badge&logo=twitter&logoColor=white)](https://x.com/JJS_OnChain)
+
