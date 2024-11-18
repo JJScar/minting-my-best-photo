@@ -5,6 +5,7 @@
 
 DEFAULT_ANVIL_KEY := 0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80
 SEPOLIA_RPC_URL := https://eth-sepolia.g.alchemy.com/v2/ZXm5pI0v-lpLywpHjxW33bIKWLrnH38j
+TOKEN_ADDRESS := 0x5FbDB2315678afecb367f032d93F642f64180aa3
 
 all: clean remove install update build
 
@@ -36,7 +37,7 @@ ifeq ($(findstring --network sepolia,$(ARGS)),--network sepolia)
 endif
 
 deployNFT:
-	@forge script script/DeployWhaleNFT.s.sol:DeployWhaleNFT $(NETWORK_ARGS)
+	@forge script script/DeployWhaleNFT.s.sol:DeployWhaleNFT $(NETWORK_ARGS) --sig "run(address)" $(TOKEN_ADDRESS)
 
 mintNFT:
 	@forge script script/Interactions.s.sol:MintNFT ${NETWORK_ARGS}
